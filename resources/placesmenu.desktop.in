@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=LXQtPanel/Plugin
+Name=Places Menu
+Comment=Displays a menu showing the places
+Icon=folder
+
+#TRANSLATIONS_DIR=../translations
