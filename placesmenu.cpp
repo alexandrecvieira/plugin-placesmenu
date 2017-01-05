@@ -50,13 +50,11 @@ PlacesMenu::PlacesMenu(const ILXQtPanelPluginStartupInfo &startupInfo) :
     mMenuSignalMapper = new QSignalMapper(this);
 
     mButton.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-    mButton.setIcon(XdgIcon::fromTheme("folder"));
-    // mButton.setText(QString(tr("Places")));
+    mButton.setText(QString(tr("Places")));
     
     connect(&mButton, SIGNAL(clicked()), this, SLOT(showMenu()));
     connect(mOpenDirectorySignalMapper, SIGNAL(mapped(QString)), this, SLOT(openDirectory(QString)));
-    // connect(mMenuSignalMapper, SIGNAL(mapped(QString)), this, SLOT(addMenu(QString)));
-
+    
     settingsChanged();
 }
 
@@ -87,8 +85,6 @@ void PlacesMenu::buildMenu()
         mMenu = 0;
     }
 
-    // mPathStrings.clear();
-
     mMenu = new QMenu();
 
     addActions(mMenu);
@@ -99,21 +95,8 @@ void PlacesMenu::openDirectory(const QString& path)
     QDesktopServices::openUrl(QUrl("file://" + QDir::toNativeSeparators(path)));
 }
 
-/*void PlacesMenu::addMenu(QString path)
-{
-    QSignalMapper* sender = (QSignalMapper* )QObject::sender();
-    QMenu* parentMenu = (QMenu*) sender->mapping(path);
-
-    if(parentMenu->isEmpty())
-    {
-        addActions(parentMenu, path);
-    }
-}*/
-
 void PlacesMenu::addActions(QMenu* menu)
 {
-    // mPathStrings.push_back(path);
-    
     QString homeName = tr("Home");
     QString homeLocation = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(), QStandardPaths::LocateDirectory);
     QAction* openDirectoryActionHome = menu->addAction(XdgIcon::fromTheme("user-home"), homeName);
@@ -186,10 +169,10 @@ void PlacesMenu::settingsChanged()
         QIcon buttonIcon = QIcon(icon);
         if(!buttonIcon.pixmap(QSize(24,24)).isNull())
         {
-            mButton.setIcon(buttonIcon);
+            //mButton.setIcon(buttonIcon);
             return;
         }
     }
 
-    mButton.setIcon(mDefaultIcon);
+   // mButton.setIcon(mDefaultIcon);
 }

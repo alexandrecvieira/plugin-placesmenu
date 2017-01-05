@@ -12,3 +12,6 @@ CMake Binary=/usr/bin/cmake
 Environment Profile=
 Extra Arguments=
 Install Directory=/usr
+
+[Project]
+VersionControlSupport=kdevgit
