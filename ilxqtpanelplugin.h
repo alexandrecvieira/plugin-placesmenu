@@ -1,8 +1,8 @@
 /* BEGIN_COMMON_COPYRIGHT_HEADER
  * (c)LGPL2+
  *
- * LXDE-Qt - a lightweight, Qt based, desktop toolset
- * http://razor-qt.org
+ * LXQt - a lightweight, Qt based, desktop toolset
+ * https://lxqt.org
  *
  * Copyright: 2012 Razor team
  * Authors:
@@ -157,7 +157,7 @@ public:
 
     The default implementation do nothing.
      **/
-    virtual void activated(ActivationReason reason) {}
+    virtual void activated(ActivationReason /*reason*/) {}
 
     /**
     This function is called when the panel geometry or lines count are changed.
@@ -196,6 +196,17 @@ public:
         mPanel->willShowWindow(w);
     }
 
+    /*!
+     * \brief By calling this function, a plugin notifies the panel about change of it's "static"
+     * configuration
+     *
+     * \sa isSeparate(), isExpandable
+     */
+    inline void pluginFlagsChanged()
+    {
+        mPanel->pluginFlagsChanged(this);
+    }
+
     virtual bool isSeparate() const { return false;  }
     virtual bool isExpandable() const { return false; }
 private:
@@ -213,7 +224,7 @@ Example:
 class LXQtClockPluginLibrary: public QObject, public ILXQtPanelPluginLibrary
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "lxde-qt.org/Panel/PluginInterface/3.0")
+    Q_PLUGIN_METADATA(IID "lxqt.org/Panel/PluginInterface/3.0")
     Q_INTERFACES(ILXQtPanelPluginLibrary)
 public:
     ILXQtPanelPlugin *instance(const ILXQtPanelPluginStartupInfo &startupInfo) { return new LXQtClock(startupInfo);}
@@ -236,6 +247,6 @@ public:
 
 
 Q_DECLARE_INTERFACE(ILXQtPanelPluginLibrary,
-                    "lxde-qt.org/Panel/PluginInterface/3.0")
+                    "lxqt.org/Panel/PluginInterface/3.0")
 
 #endif // ILXQTPANELPLUGIN_H

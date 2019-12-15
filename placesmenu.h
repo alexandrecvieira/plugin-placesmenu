@@ -31,7 +31,6 @@
 #define PLACESMENU_H
 
 #include "ilxqtpanelplugin.h"
-#include "placesmenuconfiguration.h"
 
 #include <QLabel>
 #include <QToolButton>
@@ -52,10 +51,8 @@ public:
 
     virtual QWidget *widget() { return &mButton; }
     virtual QString themeId() const { return "PlacesMenu"; }
-    virtual ILXQtPanelPlugin::Flags flags() const { return HaveConfigDialog; }
-    QDialog *configureDialog();
-    void settingsChanged();
-
+    // virtual ILXQtPanelPlugin::Flags flags() const { return HaveConfigDialog; }
+    
 private slots:
     void showMenu();
     void openDirectory(const QString& path);

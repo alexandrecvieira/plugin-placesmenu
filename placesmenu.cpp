@@ -55,7 +55,7 @@ PlacesMenu::PlacesMenu(const ILXQtPanelPluginStartupInfo &startupInfo) :
     connect(&mButton, SIGNAL(clicked()), this, SLOT(showMenu()));
     connect(mOpenDirectorySignalMapper, SIGNAL(mapped(QString)), this, SLOT(openDirectory(QString)));
     
-    settingsChanged();
+    /* settingsChanged(); */
 }
 
 PlacesMenu::~PlacesMenu()
@@ -152,7 +152,7 @@ void PlacesMenu::addActions(QMenu* menu)
     }*/
 }
 
-QDialog* PlacesMenu::configureDialog()
+/*QDialog* PlacesMenu::configureDialog()
 {
      return new PlacesMenuConfiguration(settings());
 }
@@ -175,4 +175,4 @@ void PlacesMenu::settingsChanged()
     }
 
    // mButton.setIcon(mDefaultIcon);
-}
+}*/

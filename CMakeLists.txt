@@ -1,25 +1,19 @@
-cmake_minimum_required(VERSION 3.0.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
+# CMP0000: Call the cmake_minimum_required() command at the beginning of the top-level
+# CMakeLists.txt file even before calling the project() command.
+# The cmake_minimum_required(VERSION) command implicitly invokes the cmake_policy(VERSION)
+# command to specify that the current project code is written for the given range of CMake
+# versions.
+project(lxqt-panel)
+
 option(UPDATE_TRANSLATIONS "Update source translation translations/*.ts files" OFF)
-option(PULL_TRANSLATIONS "Pull translations" ON)
 option(WITH_SCREENSAVER_FALLBACK "Include support for converting the deprecated 'screensaver' plugin to 'quicklaunch'. This requires the lxqt-leave (lxqt-session) to be installed in runtime." ON)
+# plugin-mainmenu
+option(USE_MENU_CACHE "Use menu-cached (no noticable penalty even on a 2004 single core pentium if not used)" OFF)
+
 
 # additional cmake files
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release)
-endif()
-
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-if(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-elseif(COMPILER_SUPPORTS_CXX0X)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-else()
-    message(FATAL "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. C++11 support is required")
-endif()
 
 macro(setByDefault VAR_NAME VAR_VALUE)
   if(NOT DEFINED ${VAR_NAME})
@@ -27,16 +21,6 @@ macro(setByDefault VAR_NAME VAR_VALUE)
   endif(NOT DEFINED ${VAR_NAME})
 endmacro()
 
-# use gcc visibility feature to decrease unnecessary exported symbols
-if (CMAKE_COMPILER_IS_GNUCXX)
-  # set visibility to hidden to hide symbols, unlesss they're exporeted manually in the code
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden -fno-exceptions")
-  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-no-undefined")
-endif()
-
-#########################################################################
-
-add_definitions (-Wall)
 include(GNUInstallDirs)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -45,20 +29,47 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5DBus REQUIRED)
-find_package(Qt5LinguistTools REQUIRED)
-find_package(Qt5Xml REQUIRED)
-find_package(Qt5X11Extras REQUIRED)
-find_package(KF5WindowSystem REQUIRED)
+set(REQUIRED_QT_VERSION "5.7.1")
+set(KF5_MINIMUM_VERSION "5.36.0")
+set(LXQT_GLOBALKEYS_MINIMUM_VERSION "0.14.1")
+set(LXQT_MINIMUM_VERSION "0.14.1")
 
-find_package(lxqt REQUIRED)
-find_package(lxqt-globalkeys REQUIRED)
-find_package(lxqt-globalkeys-ui REQUIRED)
+find_package(Qt5DBus ${REQUIRED_QT_VERSION} REQUIRED)
+find_package(Qt5LinguistTools ${REQUIRED_QT_VERSION} REQUIRED)
+find_package(Qt5Widgets ${REQUIRED_QT_VERSION} REQUIRED)
+find_package(Qt5X11Extras ${REQUIRED_QT_VERSION} REQUIRED)
+find_package(Qt5Xml ${REQUIRED_QT_VERSION} REQUIRED)
+find_package(KF5WindowSystem ${KF5_MINIMUM_VERSION} REQUIRED)
+find_package(lxqt ${LXQT_MINIMUM_VERSION} REQUIRED)
+find_package(lxqt-globalkeys-ui ${LXQT_GLOBALKEYS_MINIMUM_VERSION} REQUIRED)
 
+# Patch Version
+set(LXQT_PANEL_PATCH_VERSION 1)
+set(LXQT_PANEL_VERSION ${LXQT_MAJOR_VERSION}.${LXQT_MINOR_VERSION}.${LXQT_PANEL_PATCH_VERSION})
+add_definitions("-DLXQT_PANEL_VERSION=\"${LXQT_PANEL_VERSION}\"")
 
+include(LXQtPreventInSourceBuilds)
 include(LXQtTranslate)
 
+# All LXQtCompilerSettings except CMAKE_MODULE_LINKER_FLAGS work just fine
+# So we reset only these Flags after loading LXQtCompilerSettings
+# lxqt-build-tools:
+#  set(CMAKE_MODULE_LINKER_FLAGS "-Wl,--no-undefined ${SYMBOLIC_FLAGS} ${CMAKE_MODULE_LINKER_FLAGS}")
+message(STATUS "==OLD== CMAKE_MODULE_LINKER_FLAGS: ${CMAKE_MODULE_LINKER_FLAGS}")
+set( OLD_CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS}")
+include(LXQtCompilerSettings NO_POLICY_SCOPE)
+set(CMAKE_MODULE_LINKER_FLAGS "${OLD_CMAKE_MODULE_LINKER_FLAGS} ${SYMBOLIC_FLAGS}")
+
+# Warning: This must be before add_subdirectory(panel). Move with caution.
+set(PLUGIN_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/lxqt-panel")
+add_definitions(
+    -DPLUGIN_DIR=\"${PLUGIN_DIR}\"
+)
+
+message(STATUS "CMAKE Module linker flags: ${CMAKE_MODULE_LINKER_FLAGS}")
+message(STATUS "Panel plugins location: ${PLUGIN_DIR}")
+
+#########################################################################
 
 set(PLUGIN "placesmenu")
 
