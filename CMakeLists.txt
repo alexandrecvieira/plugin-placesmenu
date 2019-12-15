@@ -75,16 +75,10 @@ set(PLUGIN "placesmenu")
 
 set(HEADERS
     placesmenu.h
-    placesmenuconfiguration.h
 )
 
 set(SOURCES
     placesmenu.cpp
-    placesmenuconfiguration.cpp
-)
-
-set(UIS
-    placesmenuconfiguration.ui
 )
 
 set(LIBRARIES
