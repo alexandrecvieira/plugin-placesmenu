@@ -33,6 +33,7 @@ set(REQUIRED_QT_VERSION "5.7.1")
 set(KF5_MINIMUM_VERSION "5.36.0")
 set(LXQT_GLOBALKEYS_MINIMUM_VERSION "0.14.1")
 set(LXQT_MINIMUM_VERSION "0.14.1")
+set(LIBFMQT_MINIMUM_VERSION "0.14.1")
 
 find_package(Qt5DBus ${REQUIRED_QT_VERSION} REQUIRED)
 find_package(Qt5LinguistTools ${REQUIRED_QT_VERSION} REQUIRED)
@@ -42,6 +43,7 @@ find_package(Qt5Xml ${REQUIRED_QT_VERSION} REQUIRED)
 find_package(KF5WindowSystem ${KF5_MINIMUM_VERSION} REQUIRED)
 find_package(lxqt ${LXQT_MINIMUM_VERSION} REQUIRED)
 find_package(lxqt-globalkeys-ui ${LXQT_GLOBALKEYS_MINIMUM_VERSION} REQUIRED)
+find_package(fm-qt ${LIBFMQT_MINIMUM_VERSION} REQUIRED)
 
 # Patch Version
 set(LXQT_PANEL_PATCH_VERSION 1)
@@ -64,6 +66,9 @@ set(CMAKE_MODULE_LINKER_FLAGS "${OLD_CMAKE_MODULE_LINKER_FLAGS} ${SYMBOLIC_FLAGS
 set(PLUGIN_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/lxqt-panel")
 add_definitions(
     -DPLUGIN_DIR=\"${PLUGIN_DIR}\"
+    # solves glib issue: https://www.mail-archive.com/kde-bugs-dist@kde.org/msg128105.html
+    # change slots to Q_SLOTS and signals to Q_SIGNALS
+    -DQT_NO_KEYWORDS
 )
 
 message(STATUS "CMAKE Module linker flags: ${CMAKE_MODULE_LINKER_FLAGS}")

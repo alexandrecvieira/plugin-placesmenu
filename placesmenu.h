@@ -31,7 +31,7 @@
 #define PLACESMENU_H
 
 #include "ilxqtpanelplugin.h"
-
+#include <vector>
 #include <QLabel>
 #include <QToolButton>
 #include <QDomElement>
@@ -40,6 +40,8 @@
 #include <QSignalMapper>
 #include <QSettings>
 #include <QMenu>
+#include <libfm-qt/core/bookmarks.h>
+#include <libfm-qt/core/filepath.h>
 
 class PlacesMenu :  public QObject, public ILXQtPanelPlugin
 {
@@ -51,19 +53,18 @@ public:
 
     virtual QWidget *widget() { return &mButton; }
     virtual QString themeId() const { return "PlacesMenu"; }
-    // virtual ILXQtPanelPlugin::Flags flags() const { return HaveConfigDialog; }
+    virtual Flags flags() const { return SingleInstance; }
     
-private slots:
+private Q_SLOTS:
     void showMenu();
     void openDirectory(const QString& path);
-    // void addMenu(QString path);
 
-protected slots:
+protected Q_SLOTS:
     void buildMenu();
 
 private:
-	void addActions(QMenu* menu);
-
+    void addActions(QMenu* menu);
+   
     QToolButton mButton;
     QMenu *mMenu;
     QSignalMapper *mOpenDirectorySignalMapper;
@@ -72,6 +73,7 @@ private:
     QDir mBaseDirectory;
     QIcon mDefaultIcon;
     std::vector<QString> mPathStrings;
+    std::shared_ptr<Fm::Bookmarks> bookmarks_;
 };
 
 class PlacesMenuLibrary: public QObject, public ILXQtPanelPluginLibrary

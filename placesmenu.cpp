@@ -26,8 +26,6 @@
  *
  * END_COMMON_COPYRIGHT_HEADER */
 
-#include <vector>
-
 #include "placesmenu.h"
 #include <QStandardPaths>
 #include <QStyle>
@@ -36,7 +34,6 @@
 #include <QFileInfo>
 #include <QUrl>
 #include <QIcon>
-
 #include <XdgIcon>
 
 PlacesMenu::PlacesMenu(const ILXQtPanelPluginStartupInfo &startupInfo) :
@@ -44,8 +41,13 @@ PlacesMenu::PlacesMenu(const ILXQtPanelPluginStartupInfo &startupInfo) :
     ILXQtPanelPlugin(startupInfo),
     mMenu(0),
     mBaseDirectory(QDir::homePath()),
-    mDefaultIcon(XdgIcon::fromTheme("folder"))
+    mDefaultIcon(XdgIcon::fromTheme("folder")),
+    bookmarks_{Fm::Bookmarks::globalInstance()}
 {
+    // ensure that glib integration of Qt is not turned off
+    // This fixes #168: https://github.com/lxqt/pcmanfm-qt/issues/168
+    qunsetenv("QT_NO_GLIB");
+
     mOpenDirectorySignalMapper = new QSignalMapper(this);
     mMenuSignalMapper = new QSignalMapper(this);
 
@@ -54,8 +56,6 @@ PlacesMenu::PlacesMenu(const ILXQtPanelPluginStartupInfo &startupInfo) :
     
     connect(&mButton, SIGNAL(clicked()), this, SLOT(showMenu()));
     connect(mOpenDirectorySignalMapper, SIGNAL(mapped(QString)), this, SLOT(openDirectory(QString)));
-    
-    /* settingsChanged(); */
 }
 
 PlacesMenu::~PlacesMenu()
@@ -108,6 +108,12 @@ void PlacesMenu::addActions(QMenu* menu)
     QAction* openDirectoryActionDocument = menu->addAction(XdgIcon::fromTheme("folder-documents"), documentsName);
     connect(openDirectoryActionDocument, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
     mOpenDirectorySignalMapper->setMapping(openDirectoryActionDocument, documentsLocation);
+
+    QString downloadName = tr("Downloads");
+    QString downloadLocation = QStandardPaths::locate(QStandardPaths::DownloadLocation, QString(), QStandardPaths::LocateDirectory);
+    QAction* openDirectoryActionDownload = menu->addAction(XdgIcon::fromTheme("folder-download"), downloadName);
+    connect(openDirectoryActionDownload, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
+    mOpenDirectorySignalMapper->setMapping(openDirectoryActionDownload, downloadLocation);
     
     QString musicName = tr("Music");
     QString musicLocation = QStandardPaths::locate(QStandardPaths::MusicLocation, QString(), QStandardPaths::LocateDirectory);
@@ -126,53 +132,16 @@ void PlacesMenu::addActions(QMenu* menu)
     QAction* openDirectoryActionVideos = menu->addAction(XdgIcon::fromTheme("folder-videos"), videosName);
     connect(openDirectoryActionVideos, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
     mOpenDirectorySignalMapper->setMapping(openDirectoryActionVideos, videosLocation);
-    
-    QString downloadName = tr("Downloads");
-    QString downloadLocation = QStandardPaths::locate(QStandardPaths::DownloadLocation, QString(), QStandardPaths::LocateDirectory);
-    QAction* openDirectoryActionDownload = menu->addAction(XdgIcon::fromTheme("folder-download"), downloadName);
-    connect(openDirectoryActionDownload, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
-    mOpenDirectorySignalMapper->setMapping(openDirectoryActionDownload, downloadLocation);
 
     menu->addSeparator();
 
-    /*QDir dir(path);
-    QFileInfoList list = dir.entryInfoList();
-
-    foreach (const QFileInfo& entry, list)
-    {
-        if(entry.isDir() && !entry.isHidden())
-        {
-            mPathStrings.push_back(entry.fileName());
-
-            QMenu* subMenu = menu->addMenu(QStyle::SP_DirHomeIcon, mPathStrings.back());
-
-            connect(subMenu, SIGNAL(aboutToShow()), mMenuSignalMapper, SLOT(map()));
-            mMenuSignalMapper->setMapping(subMenu, entry.absoluteFilePath());
-        }
-    }*/
-}
-
-/*QDialog* PlacesMenu::configureDialog()
-{
-     return new PlacesMenuConfiguration(settings());
-}
-
-void PlacesMenu::settingsChanged()
-{
-    mBaseDirectory.setPath(settings()->value("baseDirectory", QDir::homePath()).toString());
-
-    QString iconPath = settings()->value("icon", QString()).toString();
-    QIcon icon = QIcon(iconPath);
-
-    if(!icon.isNull())
-    {
-        QIcon buttonIcon = QIcon(icon);
-        if(!buttonIcon.pixmap(QSize(24,24)).isNull())
-        {
-            //mButton.setIcon(buttonIcon);
-            return;
-        }
+    for(auto& item: bookmarks_->items()) {
+     	QString bookmarkName = item->name();
+	auto bookmarkPath = item->path().localPath();
+	QString bookmarkLocation = QString::fromUtf8(bookmarkPath.get());
+     	QAction* bookmarkAction = menu->addAction(XdgIcon::fromTheme("folder"), bookmarkName);
+	connect(bookmarkAction, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
+	mOpenDirectorySignalMapper->setMapping(bookmarkAction, bookmarkLocation);
     }
+}
 
-   // mButton.setIcon(mDefaultIcon);
-}*/
