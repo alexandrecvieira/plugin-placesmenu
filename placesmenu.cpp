@@ -139,9 +139,16 @@ void PlacesMenu::addActions(QMenu* menu)
      	QString bookmarkName = item->name();
 	auto bookmarkPath = item->path().localPath();
 	QString bookmarkLocation = QString::fromUtf8(bookmarkPath.get());
-     	QAction* bookmarkAction = menu->addAction(XdgIcon::fromTheme("folder"), bookmarkName);
-	connect(bookmarkAction, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
-	mOpenDirectorySignalMapper->setMapping(bookmarkAction, bookmarkLocation);
+	bookmarkLocation += "/";
+	qDebug() << "1. " + bookmarkLocation;
+	qDebug() << "2. " + documentsLocation;
+       	if((bookmarkLocation != documentsLocation) && (bookmarkLocation != downloadLocation)
+	   && (bookmarkLocation != musicLocation) && (bookmarkLocation != pictureLocation)
+	   && (bookmarkLocation != videosLocation)){
+	    QAction* bookmarkAction = menu->addAction(XdgIcon::fromTheme("folder"), bookmarkName);
+	    connect(bookmarkAction, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
+	    mOpenDirectorySignalMapper->setMapping(bookmarkAction, bookmarkLocation);
+	}
     }
 }
 
