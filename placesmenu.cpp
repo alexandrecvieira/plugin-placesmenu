@@ -140,9 +140,7 @@ void PlacesMenu::addActions(QMenu* menu)
 	auto bookmarkPath = item->path().localPath();
 	QString bookmarkLocation = QString::fromUtf8(bookmarkPath.get());
 	bookmarkLocation += "/";
-	qDebug() << "1. " + bookmarkLocation;
-	qDebug() << "2. " + documentsLocation;
-       	if((bookmarkLocation != documentsLocation) && (bookmarkLocation != downloadLocation)
+	if((bookmarkLocation != documentsLocation) && (bookmarkLocation != downloadLocation)
 	   && (bookmarkLocation != musicLocation) && (bookmarkLocation != pictureLocation)
 	   && (bookmarkLocation != videosLocation)){
 	    QAction* bookmarkAction = menu->addAction(XdgIcon::fromTheme("folder"), bookmarkName);
