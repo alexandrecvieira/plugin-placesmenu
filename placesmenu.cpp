@@ -7,7 +7,7 @@
  *
  * Copyright: 2015 LXQt team
  * Authors:
- *   Daniel Drzisga <sersmicro@gmail.com>
+ *   Alexandre C Vieira <acamargo.vieira@gmail.com>
  *
  * This program or library is free software; you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General Public
