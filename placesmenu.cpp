@@ -95,14 +95,14 @@ void PlacesMenu::openDirectory(const QString& path)
     QDesktopServices::openUrl(QUrl("file://" + QDir::toNativeSeparators(path)));
 }
 
-void PlacesMenu::menuItem(QMenu* menu, QString name, QString iconName, QString location)
+void PlacesMenu::createMenuItem(QMenu* menu, QString name, QString iconName, QString location)
 {
     QAction* action = menu->addAction(XdgIcon::fromTheme(iconName), name);
     connect(action, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
     mOpenDirectorySignalMapper->setMapping(action, location);    
 }
 
-void PlacesMenu::menuItem(QMenu* menu, QString name, GIcon* gicon, QString location)
+void PlacesMenu::createMenuItem(QMenu* menu, QString name, GIcon* gicon, QString location)
 {
     QIcon icon = Fm::IconInfo::fromGIcon(gicon)->qicon();
     QAction* action = menu->addAction(icon, name);
@@ -114,27 +114,27 @@ void PlacesMenu::addActions(QMenu* menu)
 {
     QString homeName = tr("Home");
     QString homeLocation = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(), QStandardPaths::LocateDirectory);
-    menuItem(menu, homeName, "user-home", homeLocation);
+    createMenuItem(menu, homeName, "user-home", homeLocation);
        
     QString documentsName = tr("Documents");
     QString documentsLocation = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
-    menuItem(menu, documentsName, "folder-documents", documentsLocation);
+    createMenuItem(menu, documentsName, "folder-documents", documentsLocation);
      
     QString downloadName = tr("Downloads");
     QString downloadLocation = QStandardPaths::locate(QStandardPaths::DownloadLocation, QString(), QStandardPaths::LocateDirectory);
-    menuItem(menu, downloadName, "folder-download", downloadLocation);
+    createMenuItem(menu, downloadName, "folder-download", downloadLocation);
     
     QString musicName = tr("Music");
     QString musicLocation = QStandardPaths::locate(QStandardPaths::MusicLocation, QString(), QStandardPaths::LocateDirectory);
-    menuItem(menu, musicName, "folder-music", musicLocation);
+    createMenuItem(menu, musicName, "folder-music", musicLocation);
     
     QString pictureName = tr("Pictures");
     QString pictureLocation = QStandardPaths::locate(QStandardPaths::PicturesLocation, QString(), QStandardPaths::LocateDirectory);
-    menuItem(menu, pictureName, "folder-picture", pictureLocation);
+    createMenuItem(menu, pictureName, "folder-picture", pictureLocation);
     
     QString videosName = tr("Videos");
     QString videosLocation = QStandardPaths::locate(QStandardPaths::MoviesLocation, QString(), QStandardPaths::LocateDirectory);
-    menuItem(menu, videosName, "folder-videos", videosLocation);
+    createMenuItem(menu, videosName, "folder-videos", videosLocation);
     
     menu->addSeparator();
 
@@ -147,30 +147,27 @@ void PlacesMenu::addActions(QMenu* menu)
 	if((bookmarkLocation != documentsLocation) && (bookmarkLocation != downloadLocation)
 	   && (bookmarkLocation != musicLocation) && (bookmarkLocation != pictureLocation)
 	   && (bookmarkLocation != videosLocation)){
-	    QAction* bookmarkAction = menu->addAction(XdgIcon::fromTheme("folder"), bookmarkName);
-	    connect(bookmarkAction, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
-	    mOpenDirectorySignalMapper->setMapping(bookmarkAction, bookmarkLocation);
+	    createMenuItem(menu, bookmarkName, "folder", bookmarkLocation);
 	}
     }
 
     // Mounted drives: populate mounted drives and connect
     int count = 0;
     GVolumeMonitor* volumeMonitor = g_volume_monitor_get();
-    GList* vols = g_volume_monitor_get_volumes(volumeMonitor);
-    for(GList* l = vols; l; l = l->next) {
-	GVolume* volume = G_VOLUME(l->data);
-	GMount* mount = g_volume_get_mount(volume);
+    GList* mountsList = g_volume_monitor_get_mounts(volumeMonitor);
+    for(GList* l = mountsList; l; l = l->next) {
+	GMount* mount = G_MOUNT(l->data);
 	if (g_mount_can_unmount(mount))	{
 	    count++;
 	    if(count == 1)
 		menu->addSeparator();
 	    char* mountName = g_mount_get_name(mount);
 	    GIcon* gicon = g_mount_get_icon(mount);
-	    GFile* drive_file = g_mount_get_default_location(mount);
-	    char* drive_path = g_file_get_path(drive_file);
-	    menuItem(menu, QString::fromUtf8(mountName), gicon, drive_path);
+	    GFile* mountFile = g_mount_get_default_location(mount);
+	    char* mountPath = g_file_get_path(mountFile);
+	    createMenuItem(menu, QString::fromUtf8(mountName), gicon, mountPath);
 	    g_free(mountName);
-	    g_free(drive_path);
+	    g_free(mountPath);
 	}   
     }
 }
