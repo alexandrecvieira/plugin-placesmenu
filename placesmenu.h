@@ -58,6 +58,8 @@ public:
 private Q_SLOTS:
     void showMenu();
     void openDirectory(const QString& path);
+    void menuItem(QMenu* menu, QString name, QString iconName, QString location);
+    void menuItem(QMenu* menu, QString name, GIcon* icon, QString location);
 
 protected Q_SLOTS:
     void buildMenu();

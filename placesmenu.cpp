@@ -95,46 +95,50 @@ void PlacesMenu::openDirectory(const QString& path)
     QDesktopServices::openUrl(QUrl("file://" + QDir::toNativeSeparators(path)));
 }
 
+void PlacesMenu::menuItem(QMenu* menu, QString name, QString iconName, QString location)
+{
+    QAction* action = menu->addAction(XdgIcon::fromTheme(iconName), name);
+    connect(action, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
+    mOpenDirectorySignalMapper->setMapping(action, location);    
+}
+
+void PlacesMenu::menuItem(QMenu* menu, QString name, GIcon* gicon, QString location)
+{
+    QIcon icon = Fm::IconInfo::fromGIcon(gicon)->qicon();
+    QAction* action = menu->addAction(icon, name);
+    connect(action, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
+    mOpenDirectorySignalMapper->setMapping(action, location);    
+}
+
 void PlacesMenu::addActions(QMenu* menu)
 {
     QString homeName = tr("Home");
     QString homeLocation = QStandardPaths::locate(QStandardPaths::HomeLocation, QString(), QStandardPaths::LocateDirectory);
-    QAction* openDirectoryActionHome = menu->addAction(XdgIcon::fromTheme("user-home"), homeName);
-    connect(openDirectoryActionHome, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
-    mOpenDirectorySignalMapper->setMapping(openDirectoryActionHome, homeLocation);
-    
+    menuItem(menu, homeName, "user-home", homeLocation);
+       
     QString documentsName = tr("Documents");
     QString documentsLocation = QStandardPaths::locate(QStandardPaths::DocumentsLocation, QString(), QStandardPaths::LocateDirectory);
-    QAction* openDirectoryActionDocument = menu->addAction(XdgIcon::fromTheme("folder-documents"), documentsName);
-    connect(openDirectoryActionDocument, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
-    mOpenDirectorySignalMapper->setMapping(openDirectoryActionDocument, documentsLocation);
-
+    menuItem(menu, documentsName, "folder-documents", documentsLocation);
+     
     QString downloadName = tr("Downloads");
     QString downloadLocation = QStandardPaths::locate(QStandardPaths::DownloadLocation, QString(), QStandardPaths::LocateDirectory);
-    QAction* openDirectoryActionDownload = menu->addAction(XdgIcon::fromTheme("folder-download"), downloadName);
-    connect(openDirectoryActionDownload, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
-    mOpenDirectorySignalMapper->setMapping(openDirectoryActionDownload, downloadLocation);
+    menuItem(menu, downloadName, "folder-download", downloadLocation);
     
     QString musicName = tr("Music");
     QString musicLocation = QStandardPaths::locate(QStandardPaths::MusicLocation, QString(), QStandardPaths::LocateDirectory);
-    QAction* openDirectoryActionMusic = menu->addAction(XdgIcon::fromTheme("folder-music"), musicName);
-    connect(openDirectoryActionMusic, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
-    mOpenDirectorySignalMapper->setMapping(openDirectoryActionMusic, musicLocation);
+    menuItem(menu, musicName, "folder-music", musicLocation);
     
     QString pictureName = tr("Pictures");
     QString pictureLocation = QStandardPaths::locate(QStandardPaths::PicturesLocation, QString(), QStandardPaths::LocateDirectory);
-    QAction* openDirectoryActionPicture = menu->addAction(XdgIcon::fromTheme("folder-picture"), pictureName);
-    connect(openDirectoryActionPicture, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
-    mOpenDirectorySignalMapper->setMapping(openDirectoryActionPicture, pictureLocation);
+    menuItem(menu, pictureName, "folder-picture", pictureLocation);
     
     QString videosName = tr("Videos");
     QString videosLocation = QStandardPaths::locate(QStandardPaths::MoviesLocation, QString(), QStandardPaths::LocateDirectory);
-    QAction* openDirectoryActionVideos = menu->addAction(XdgIcon::fromTheme("folder-videos"), videosName);
-    connect(openDirectoryActionVideos, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
-    mOpenDirectorySignalMapper->setMapping(openDirectoryActionVideos, videosLocation);
-
+    menuItem(menu, videosName, "folder-videos", videosLocation);
+    
     menu->addSeparator();
 
+    // load bookmarks
     for(auto& item: bookmarks_->items()) {
      	QString bookmarkName = item->name();
 	auto bookmarkPath = item->path().localPath();
@@ -147,6 +151,27 @@ void PlacesMenu::addActions(QMenu* menu)
 	    connect(bookmarkAction, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
 	    mOpenDirectorySignalMapper->setMapping(bookmarkAction, bookmarkLocation);
 	}
+    }
+
+    // Mounted drives: populate mounted drives and connect
+    int count = 0;
+    GVolumeMonitor* volumeMonitor = g_volume_monitor_get();
+    GList* vols = g_volume_monitor_get_volumes(volumeMonitor);
+    for(GList* l = vols; l; l = l->next) {
+	GVolume* volume = G_VOLUME(l->data);
+	GMount* mount = g_volume_get_mount(volume);
+	if (g_mount_can_unmount(mount))	{
+	    count++;
+	    if(count == 1)
+		menu->addSeparator();
+	    char* mountName = g_mount_get_name(mount);
+	    GIcon* gicon = g_mount_get_icon(mount);
+	    GFile* drive_file = g_mount_get_default_location(mount);
+	    char* drive_path = g_file_get_path(drive_file);
+	    menuItem(menu, QString::fromUtf8(mountName), gicon, drive_path);
+	    g_free(mountName);
+	    g_free(drive_path);
+	}   
     }
 }
 
