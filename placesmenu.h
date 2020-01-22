@@ -64,9 +64,14 @@ private Q_SLOTS:
 protected Q_SLOTS:
     void buildMenu();
 
+protected:
+    static void onVolumeAdded(GVolumeMonitor* monitor, GVolume* volume, PlacesMenu* pThis);
+    static void onVolumeRemoved(GVolumeMonitor* monitor, GVolume* volume, PlacesMenu* pThis);
+    static void showMessage(const char* text, const char* name);
+
 private:
     void addActions(QMenu* menu);
-   
+       
     QToolButton mButton;
     QMenu *mMenu;
     QSignalMapper *mOpenDirectorySignalMapper;
@@ -76,6 +81,8 @@ private:
     QIcon mDefaultIcon;
     std::vector<QString> mPathStrings;
     std::shared_ptr<Fm::Bookmarks> bookmarks_;
+
+    GVolumeMonitor* volumeMonitor;
 };
 
 class PlacesMenuLibrary: public QObject, public ILXQtPanelPluginLibrary

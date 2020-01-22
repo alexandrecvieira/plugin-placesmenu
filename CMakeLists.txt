@@ -44,6 +44,8 @@ find_package(KF5WindowSystem ${KF5_MINIMUM_VERSION} REQUIRED)
 find_package(lxqt ${LXQT_MINIMUM_VERSION} REQUIRED)
 find_package(lxqt-globalkeys-ui ${LXQT_GLOBALKEYS_MINIMUM_VERSION} REQUIRED)
 find_package(fm-qt ${LIBFMQT_MINIMUM_VERSION} REQUIRED)
+find_package (PkgConfig REQUIRED)
+pkg_check_modules(LIBNOTIFY libnotify)
 
 # Patch Version
 set(LXQT_PANEL_PATCH_VERSION 1)
@@ -52,6 +54,7 @@ add_definitions("-DLXQT_PANEL_VERSION=\"${LXQT_PANEL_VERSION}\"")
 
 include(LXQtPreventInSourceBuilds)
 include(LXQtTranslate)
+include_directories(${LIBNOTIFY_INCLUDE_DIRS})
 
 # All LXQtCompilerSettings except CMAKE_MODULE_LINKER_FLAGS work just fine
 # So we reset only these Flags after loading LXQtCompilerSettings

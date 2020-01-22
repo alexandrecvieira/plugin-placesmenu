@@ -35,6 +35,7 @@
 #include <QUrl>
 #include <QIcon>
 #include <XdgIcon>
+#include <libnotify/notify.h>
 
 PlacesMenu::PlacesMenu(const ILXQtPanelPluginStartupInfo &startupInfo) :
     QObject(),
@@ -56,6 +57,9 @@ PlacesMenu::PlacesMenu(const ILXQtPanelPluginStartupInfo &startupInfo) :
     
     connect(&mButton, SIGNAL(clicked()), this, SLOT(showMenu()));
     connect(mOpenDirectorySignalMapper, SIGNAL(mapped(QString)), this, SLOT(openDirectory(QString)));
+    volumeMonitor = g_volume_monitor_get();
+    g_signal_connect(volumeMonitor, "volume-added", G_CALLBACK(onVolumeAdded), nullptr);
+    g_signal_connect(volumeMonitor, "volume-removed", G_CALLBACK(onVolumeRemoved), nullptr);
 }
 
 PlacesMenu::~PlacesMenu()
@@ -153,7 +157,6 @@ void PlacesMenu::addActions(QMenu* menu)
 
     // Mounted drives: populate mounted drives and connect
     int count = 0;
-    GVolumeMonitor* volumeMonitor = g_volume_monitor_get();
     GList* mountsList = g_volume_monitor_get_mounts(volumeMonitor);
     for(GList* l = mountsList; l; l = l->next) {
 	GMount* mount = G_MOUNT(l->data);
@@ -170,5 +173,47 @@ void PlacesMenu::addActions(QMenu* menu)
 	    g_free(mountPath);
 	}   
     }
+}
+
+void PlacesMenu::onVolumeAdded(GVolumeMonitor* /*monitor*/, GVolume* volume, PlacesMenu* pThis)
+{
+    // qDebug() << "onVolumeAdded";
+    
+    char* volumeName = g_volume_get_name(volume);
+    GIcon* gicon = g_volume_get_icon(volume);
+    QIcon icon = Fm::IconInfo::fromGIcon(gicon)->qicon();
+
+    QString text = tr("The device <b><nobr>\"%1\"</nobr></b> is connected.").arg(volumeName);
+    
+    showMessage(text.toUtf8().data(), volumeName);//, icon);
+   
+    g_free(volumeName);
+}
+
+void PlacesMenu::onVolumeRemoved(GVolumeMonitor* /*monitor*/, GVolume* volume, PlacesMenu* pThis)
+{
+    // QString volumeName = QString::fromUtf8(g_volume_get_name(volume));
+    
+    char* volumeName = g_volume_get_name(volume);
+
+    QString text = tr("The device <b><nobr>\"%1\"</nobr></b> is removed.").arg(volumeName);
+    
+    showMessage(text.toUtf8().data(), volumeName);
+    
+    g_free(volumeName);
+}
+
+void PlacesMenu::showMessage(const char* text, const char* name)
+{
+       	notify_init("Places Menu");
+	NotifyNotification* notification = notify_notification_new(text, name, nullptr);
+	//notify_notification_set_icon_from_pixbuf(notification, icon);
+	notify_notification_set_urgency(notification, NOTIFY_URGENCY_NORMAL);
+	notify_notification_set_timeout(notification, NOTIFY_EXPIRES_DEFAULT);
+	notify_notification_show(notification, NULL);
+
+	g_object_unref(G_OBJECT(notification));
+
+	notify_uninit();
 }
 
