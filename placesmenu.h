@@ -67,7 +67,7 @@ protected Q_SLOTS:
 protected:
     static void onVolumeAdded(GVolumeMonitor* monitor, GVolume* volume, PlacesMenu* pThis);
     static void onVolumeRemoved(GVolumeMonitor* monitor, GVolume* volume, PlacesMenu* pThis);
-    static void showMessage(const char* text, const char* name);
+    static void showMessage(const QString& text);
 
 private:
     void addActions(QMenu* menu);

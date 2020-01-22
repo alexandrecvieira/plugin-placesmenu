@@ -4,7 +4,7 @@ Simple Places Menu for LXQt-Panel similar to [Places Status Indicator(Gnome Shel
 #### Dependencies
     sudo apt install lxqt-build-tools libqt5x11extras5-dev liblxqt0-dev \
 	liblxqt-globalkeys0-dev liblxqt-globalkeys-ui0-dev libkf5windowsystem-dev \
-	libfm-qt-dev libglib2.0-dev
+	libfm-qt-dev libglib2.0-dev libnotify-dev
 
 #### Installation
     cd build

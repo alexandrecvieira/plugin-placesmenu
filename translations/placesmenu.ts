@@ -38,5 +38,20 @@
         <source>Downloads</source>
         <translation type="unfinished"></translation>
     </message>
+     <message>
+        <location filename="../placesmenu.cpp" line="181"/>
+        <source>The device &lt;b&gt;&lt;nobr&gt;&quot;%1&quot;&lt;/nobr&gt;&lt;/b&gt; is connected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../placesmenu.cpp" line="190"/>
+        <source>The device &lt;b&gt;&lt;nobr&gt;&quot;%1&quot;&lt;/nobr&gt;&lt;/b&gt; is removed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../placesmenu.cpp" line="198"/>
+        <source>Places Menu</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 </TS>

@@ -175,45 +175,35 @@ void PlacesMenu::addActions(QMenu* menu)
     }
 }
 
-void PlacesMenu::onVolumeAdded(GVolumeMonitor* /*monitor*/, GVolume* volume, PlacesMenu* pThis)
+void PlacesMenu::onVolumeAdded(GVolumeMonitor* /*monitor*/, GVolume* volume, PlacesMenu* /*pThis*/)
 {
-    // qDebug() << "onVolumeAdded";
-    
     char* volumeName = g_volume_get_name(volume);
-    GIcon* gicon = g_volume_get_icon(volume);
-    QIcon icon = Fm::IconInfo::fromGIcon(gicon)->qicon();
-
     QString text = tr("The device <b><nobr>\"%1\"</nobr></b> is connected.").arg(volumeName);
-    
-    showMessage(text.toUtf8().data(), volumeName);//, icon);
+    showMessage(text);
    
     g_free(volumeName);
 }
 
-void PlacesMenu::onVolumeRemoved(GVolumeMonitor* /*monitor*/, GVolume* volume, PlacesMenu* pThis)
+void PlacesMenu::onVolumeRemoved(GVolumeMonitor* /*monitor*/, GVolume* volume, PlacesMenu* /*pThis*/)
 {
-    // QString volumeName = QString::fromUtf8(g_volume_get_name(volume));
-    
     char* volumeName = g_volume_get_name(volume);
-
     QString text = tr("The device <b><nobr>\"%1\"</nobr></b> is removed.").arg(volumeName);
-    
-    showMessage(text.toUtf8().data(), volumeName);
+    showMessage(text);
     
     g_free(volumeName);
 }
 
-void PlacesMenu::showMessage(const char* text, const char* name)
+void PlacesMenu::showMessage(const QString& text)
 {
-       	notify_init("Places Menu");
-	NotifyNotification* notification = notify_notification_new(text, name, nullptr);
-	//notify_notification_set_icon_from_pixbuf(notification, icon);
-	notify_notification_set_urgency(notification, NOTIFY_URGENCY_NORMAL);
-	notify_notification_set_timeout(notification, NOTIFY_EXPIRES_DEFAULT);
-	notify_notification_show(notification, NULL);
+    QString title = tr("Places Menu");
+    notify_init(title.toUtf8().data());
+    NotifyNotification* notification = notify_notification_new(text.toUtf8().data(), nullptr, nullptr);
+    notify_notification_set_urgency(notification, NOTIFY_URGENCY_NORMAL);
+    notify_notification_set_timeout(notification, NOTIFY_EXPIRES_DEFAULT);
+    notify_notification_show(notification, NULL);
 
-	g_object_unref(G_OBJECT(notification));
+    g_object_unref(G_OBJECT(notification));
 
-	notify_uninit();
+    notify_uninit();
 }
 
