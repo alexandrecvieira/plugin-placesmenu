@@ -99,19 +99,30 @@ void PlacesMenu::openDirectory(const QString& path)
     QDesktopServices::openUrl(QUrl("file://" + QDir::toNativeSeparators(path)));
 }
 
-void PlacesMenu::createMenuItem(QMenu* menu, QString name, QString iconName, QString location)
+void PlacesMenu::createSubmenu(QMenu* menu, GMount* mount)
+{
+    char* mountName = g_mount_get_name(mount);
+    GIcon* gicon = g_mount_get_icon(mount);
+    GFile* mountFile = g_mount_get_default_location(mount);
+    QString mountPath = QString::fromUtf8(g_file_get_path(mountFile));
+    QIcon icon = Fm::IconInfo::fromGIcon(gicon)->qicon();
+    QMenu* subMenu = menu->addMenu(icon, mountName);
+    createMenuItem(subMenu, tr("Open"), "folder", mountPath);
+    createMenuItem(subMenu, tr("Eject removable media"), "media-eject");
+}
+
+void PlacesMenu::createMenuItem(QMenu* menu, const QString& name, const QString& iconName,  const QString& location)
 {
     QAction* action = menu->addAction(XdgIcon::fromTheme(iconName), name);
     connect(action, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
     mOpenDirectorySignalMapper->setMapping(action, location);    
 }
 
-void PlacesMenu::createMenuItem(QMenu* menu, QString name, GIcon* gicon, QString location)
+void PlacesMenu::createMenuItem(QMenu* menu,  const QString& name, const QString& iconName)
 {
-    QIcon icon = Fm::IconInfo::fromGIcon(gicon)->qicon();
-    QAction* action = menu->addAction(icon, name);
-    connect(action, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
-    mOpenDirectorySignalMapper->setMapping(action, location);    
+    QAction* action = menu->addAction(XdgIcon::fromTheme(iconName), name);
+    // connect(action, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
+    // mOpenDirectorySignalMapper->setMapping(action, location);    
 }
 
 void PlacesMenu::addActions(QMenu* menu)
@@ -164,13 +175,7 @@ void PlacesMenu::addActions(QMenu* menu)
 	    count++;
 	    if(count == 1)
 		menu->addSeparator();
-	    char* mountName = g_mount_get_name(mount);
-	    GIcon* gicon = g_mount_get_icon(mount);
-	    GFile* mountFile = g_mount_get_default_location(mount);
-	    char* mountPath = g_file_get_path(mountFile);
-	    createMenuItem(menu, QString::fromUtf8(mountName), gicon, mountPath);
-	    g_free(mountName);
-	    g_free(mountPath);
+	    createSubmenu(menu, mount);
 	}   
     }
 }

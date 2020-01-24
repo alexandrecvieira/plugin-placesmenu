@@ -51,15 +51,16 @@ public:
     PlacesMenu(const ILXQtPanelPluginStartupInfo& startupInfo);
     ~PlacesMenu();
 
-    virtual QWidget *widget() { return &mButton; }
+    virtual QWidget* widget() { return &mButton; }
     virtual QString themeId() const { return "PlacesMenu"; }
     virtual Flags flags() const { return SingleInstance; }
     
 private Q_SLOTS:
     void showMenu();
     void openDirectory(const QString& path);
-    void createMenuItem(QMenu* menu, QString name, QString iconName, QString location);
-    void createMenuItem(QMenu* menu, QString name, GIcon* icon, QString location);
+    void createMenuItem(QMenu* menu, const QString& name, const QString& iconName, const QString& location);
+    void createMenuItem(QMenu* menu, const QString& name, const QString& iconName);
+    void createSubmenu(QMenu* menu, GMount* mount);
 
 protected Q_SLOTS:
     void buildMenu();
@@ -73,9 +74,9 @@ private:
     void addActions(QMenu* menu);
        
     QToolButton mButton;
-    QMenu *mMenu;
-    QSignalMapper *mOpenDirectorySignalMapper;
-    QSignalMapper *mMenuSignalMapper;
+    QMenu* mMenu;
+    QSignalMapper* mOpenDirectorySignalMapper;
+    QSignalMapper* mMenuSignalMapper;
 
     QDir mBaseDirectory;
     QIcon mDefaultIcon;
@@ -91,7 +92,7 @@ class PlacesMenuLibrary: public QObject, public ILXQtPanelPluginLibrary
     Q_PLUGIN_METADATA(IID "lxde-qt.org/Panel/PluginInterface/3.0")
     Q_INTERFACES(ILXQtPanelPluginLibrary)
 public:
-    ILXQtPanelPlugin *instance(const ILXQtPanelPluginStartupInfo &startupInfo) const
+    ILXQtPanelPlugin* instance(const ILXQtPanelPluginStartupInfo &startupInfo) const
     {
         return new PlacesMenu(startupInfo);
     }
