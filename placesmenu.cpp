@@ -36,13 +36,12 @@
 #include <QIcon>
 #include <XdgIcon>
 #include <libnotify/notify.h>
+#include <libfm-qt/mountoperation.h>
 
 PlacesMenu::PlacesMenu(const ILXQtPanelPluginStartupInfo &startupInfo) :
     QObject(),
     ILXQtPanelPlugin(startupInfo),
     mMenu(0),
-    mBaseDirectory(QDir::homePath()),
-    mDefaultIcon(XdgIcon::fromTheme("folder")),
     bookmarks_{Fm::Bookmarks::globalInstance()}
 {
     // ensure that glib integration of Qt is not turned off
@@ -50,20 +49,27 @@ PlacesMenu::PlacesMenu(const ILXQtPanelPluginStartupInfo &startupInfo) :
     qunsetenv("QT_NO_GLIB");
 
     mOpenDirectorySignalMapper = new QSignalMapper(this);
-    mMenuSignalMapper = new QSignalMapper(this);
+    mEjectSignalMapper = new QSignalMapper(this);
 
     mButton.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     mButton.setText(QString(tr("Places")));
     
     connect(&mButton, SIGNAL(clicked()), this, SLOT(showMenu()));
     connect(mOpenDirectorySignalMapper, SIGNAL(mapped(QString)), this, SLOT(openDirectory(QString)));
+    connect(mEjectSignalMapper, SIGNAL(mapped(QString)), this, SLOT(onEject(QString)));
+    
     volumeMonitor = g_volume_monitor_get();
-    g_signal_connect(volumeMonitor, "volume-added", G_CALLBACK(onVolumeAdded), nullptr);
-    g_signal_connect(volumeMonitor, "volume-removed", G_CALLBACK(onVolumeRemoved), nullptr);
+    g_signal_connect(volumeMonitor, "volume-added", G_CALLBACK(onVolumeAdded), this);
+    g_signal_connect(volumeMonitor, "volume-removed", G_CALLBACK(onVolumeRemoved), this);
 }
 
 PlacesMenu::~PlacesMenu()
 {
+    if(volumeMonitor) {
+        g_signal_handlers_disconnect_by_func(volumeMonitor, (gpointer)G_CALLBACK(onVolumeAdded), this);
+        g_signal_handlers_disconnect_by_func(volumeMonitor, (gpointer)G_CALLBACK(onVolumeRemoved), this);
+    }
+    
     if(mMenu)
     {
         delete mMenu;
@@ -101,14 +107,20 @@ void PlacesMenu::openDirectory(const QString& path)
 
 void PlacesMenu::createSubmenu(QMenu* menu, GMount* mount)
 {
-    char* mountName = g_mount_get_name(mount);
+    QString mountName = QString::fromUtf8(g_mount_get_name(mount));
     GIcon* gicon = g_mount_get_icon(mount);
     GFile* mountFile = g_mount_get_default_location(mount);
     QString mountPath = QString::fromUtf8(g_file_get_path(mountFile));
     QIcon icon = Fm::IconInfo::fromGIcon(gicon)->qicon();
-    QMenu* subMenu = menu->addMenu(icon, mountName);
-    createMenuItem(subMenu, tr("Open"), "folder", mountPath);
-    createMenuItem(subMenu, tr("Eject removable media"), "media-eject");
+    GVolume* volume = g_mount_get_volume(mount);
+    if (g_volume_can_eject(volume)) {
+	QMenu* subMenu = menu->addMenu(icon, mountName);
+	createMenuItem(subMenu, tr("Open"), mDefaultIcon, mountPath);
+	createMenuItemMount(subMenu, tr("Eject removable media"), "media-eject", mountName);
+	mapMounts.insert(mountName, mount);
+    } else {
+	createMenuItem(menu, mountName, mDefaultIcon, mountPath);
+    }
 }
 
 void PlacesMenu::createMenuItem(QMenu* menu, const QString& name, const QString& iconName,  const QString& location)
@@ -118,11 +130,11 @@ void PlacesMenu::createMenuItem(QMenu* menu, const QString& name, const QString&
     mOpenDirectorySignalMapper->setMapping(action, location);    
 }
 
-void PlacesMenu::createMenuItem(QMenu* menu,  const QString& name, const QString& iconName)
+void PlacesMenu::createMenuItemMount(QMenu* menu,  const QString& name, const QString& iconName, const QString& mountName)
 {
     QAction* action = menu->addAction(XdgIcon::fromTheme(iconName), name);
-    // connect(action, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
-    // mOpenDirectorySignalMapper->setMapping(action, location);    
+    connect(action, SIGNAL(triggered()), mEjectSignalMapper, SLOT(map()));
+    mEjectSignalMapper->setMapping(action, mountName);
 }
 
 void PlacesMenu::addActions(QMenu* menu)
@@ -162,7 +174,7 @@ void PlacesMenu::addActions(QMenu* menu)
 	if((bookmarkLocation != documentsLocation) && (bookmarkLocation != downloadLocation)
 	   && (bookmarkLocation != musicLocation) && (bookmarkLocation != pictureLocation)
 	   && (bookmarkLocation != videosLocation)){
-	    createMenuItem(menu, bookmarkName, "folder", bookmarkLocation);
+	    createMenuItem(menu, bookmarkName, mDefaultIcon, bookmarkLocation);
 	}
     }
 
@@ -171,12 +183,10 @@ void PlacesMenu::addActions(QMenu* menu)
     GList* mountsList = g_volume_monitor_get_mounts(volumeMonitor);
     for(GList* l = mountsList; l; l = l->next) {
 	GMount* mount = G_MOUNT(l->data);
-	if (g_mount_can_unmount(mount))	{
 	    count++;
 	    if(count == 1)
 		menu->addSeparator();
-	    createSubmenu(menu, mount);
-	}   
+	    createSubmenu(menu, mount);  
     }
 }
 
@@ -210,5 +220,13 @@ void PlacesMenu::showMessage(const QString& text)
     g_object_unref(G_OBJECT(notification));
 
     notify_uninit();
+}
+
+void PlacesMenu::onEject(const QString& mountName)
+{
+    Fm::MountOperation* op = new Fm::MountOperation(false);
+    GMount* mount = mapMounts[mountName];
+    mapMounts.remove(mountName);
+    op->eject(mount);
 }
 
