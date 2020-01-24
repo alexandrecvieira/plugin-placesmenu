@@ -5,7 +5,7 @@
  * http://razor-qt.org
  * http://lxqt.org
  *
- * Copyright: 2015 LXQt team
+ * Copyright: 2019
  * Authors:
  *   Alexandre C Vieira <acamargo.vieira@gmail.com>
  *
@@ -105,27 +105,41 @@ void PlacesMenu::openDirectory(const QString& path)
     QDesktopServices::openUrl(QUrl("file://" + QDir::toNativeSeparators(path)));
 }
 
+void PlacesMenu::createSubmenu(QMenu* menu, GVolume* volume)
+{
+    if (g_volume_can_eject(volume)) {
+	QString volumeName = QString::fromUtf8(g_volume_get_name(volume));
+	GIcon* gicon = g_volume_get_icon(volume);
+	QIcon icon = Fm::IconInfo::fromGIcon(gicon)->qicon();
+	QMenu* subMenu = menu->addMenu(icon, volumeName);
+	GFile* mountFile = g_mount_get_default_location(g_volume_get_mount(volume));
+	QString mountPath = QString::fromUtf8(g_file_get_path(mountFile));
+	createMenuItem(subMenu, tr("Open"), mDefaultIcon, mountPath);
+	createMenuItemMount(subMenu, tr("Eject removable media"), "media-eject", volumeName);
+	mapVolumes.insert(volumeName, volume);
+    }
+}
+
 void PlacesMenu::createSubmenu(QMenu* menu, GMount* mount)
 {
     QString mountName = QString::fromUtf8(g_mount_get_name(mount));
     GIcon* gicon = g_mount_get_icon(mount);
+    QIcon icon = Fm::IconInfo::fromGIcon(gicon)->qicon();
     GFile* mountFile = g_mount_get_default_location(mount);
     QString mountPath = QString::fromUtf8(g_file_get_path(mountFile));
-    QIcon icon = Fm::IconInfo::fromGIcon(gicon)->qicon();
-    GVolume* volume = g_mount_get_volume(mount);
-    if (g_volume_can_eject(volume)) {
-	QMenu* subMenu = menu->addMenu(icon, mountName);
-	createMenuItem(subMenu, tr("Open"), mDefaultIcon, mountPath);
-	createMenuItemMount(subMenu, tr("Eject removable media"), "media-eject", mountName);
-	mapMounts.insert(mountName, mount);
-    } else {
-	createMenuItem(menu, mountName, mDefaultIcon, mountPath);
-    }
+    createMenuItem(menu, mountName, icon, mountPath);
 }
 
 void PlacesMenu::createMenuItem(QMenu* menu, const QString& name, const QString& iconName,  const QString& location)
 {
     QAction* action = menu->addAction(XdgIcon::fromTheme(iconName), name);
+    connect(action, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
+    mOpenDirectorySignalMapper->setMapping(action, location);    
+}
+
+void PlacesMenu::createMenuItem(QMenu* menu, const QString& name, QIcon icon,  const QString& location)
+{
+    QAction* action = menu->addAction(icon, name);
     connect(action, SIGNAL(triggered()), mOpenDirectorySignalMapper, SLOT(map()));
     mOpenDirectorySignalMapper->setMapping(action, location);    
 }
@@ -183,10 +197,14 @@ void PlacesMenu::addActions(QMenu* menu)
     GList* mountsList = g_volume_monitor_get_mounts(volumeMonitor);
     for(GList* l = mountsList; l; l = l->next) {
 	GMount* mount = G_MOUNT(l->data);
+	GVolume* volume = g_mount_get_volume(mount);
 	    count++;
 	    if(count == 1)
 		menu->addSeparator();
-	    createSubmenu(menu, mount);  
+	    if(G_IS_VOLUME(volume))
+		createSubmenu(menu, volume);
+	    else
+		createSubmenu(menu, mount);  
     }
 }
 
@@ -222,11 +240,11 @@ void PlacesMenu::showMessage(const QString& text)
     notify_uninit();
 }
 
-void PlacesMenu::onEject(const QString& mountName)
+void PlacesMenu::onEject(const QString& volumeName)
 {
     Fm::MountOperation* op = new Fm::MountOperation(false);
-    GMount* mount = mapMounts[mountName];
-    mapMounts.remove(mountName);
-    op->eject(mount);
+    GVolume* volume = mapVolumes[volumeName];
+    mapVolumes.remove(volumeName);
+    op->eject(volume);
 }
 

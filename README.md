@@ -7,6 +7,9 @@ Simple Places Menu for LXQt-Panel similar to [Places Status Indicator(Gnome Shel
 	libfm-qt-dev libglib2.0-dev libnotify-dev
 
 #### Installation
+	git clone https://github.com/alexandrecvieira/plugin-placesmenu.git
+	cd plugin-placesmenu
+	mkdir build
     cd build
     cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_DATAROOTDIR=/usr/share \
 	-DCMAKE_INSTALL_LIBDIR=/usr/lib/x86_64-linux-gnu \

@@ -59,9 +59,11 @@ private Q_SLOTS:
     void showMenu();
     void openDirectory(const QString& path);
     void createMenuItem(QMenu* menu, const QString& name, const QString& iconName, const QString& location);
+    void createMenuItem(QMenu* menu, const QString& name, QIcon icon,  const QString& location);
     void createMenuItemMount(QMenu* menu, const QString& name, const QString& iconName, const QString& mountName);
     void createSubmenu(QMenu* menu, GMount* mount);
-    void onEject(const QString& mountName);						 
+    void createSubmenu(QMenu* menu, GVolume* volume);
+    void onEject(const QString& volumeName);						 
 
 protected Q_SLOTS:
     void buildMenu();
@@ -83,7 +85,7 @@ private:
     const QString mDefaultIcon = "folder";
     std::vector<QString> mPathStrings;
     std::shared_ptr<Fm::Bookmarks> bookmarks_;
-    QMap<QString, GMount*> mapMounts;
+    QMap<QString, GVolume*> mapVolumes;
 
     GVolumeMonitor* volumeMonitor;
 };
