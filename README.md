@@ -1,5 +1,8 @@
 # plugin-placesmenu
-Simple Places Menu for LXQt-Panel similar to [Places Status Indicator(Gnome Shell)](https://extensions.gnome.org/extension/8/places-status-indicator/)
+
+### Simple Places Menu for LXQt-Panel similar to [Places Status Indicator(Gnome Shell)](https://extensions.gnome.org/extension/8/places-status-indicator/)
+
+#### This project has no release versions, only the master branch.
 
 ![plugin-placesmenu](http://alexandrecvieira.droppages.com/images/indicator-places/plugin-placesmenu.png)
 
