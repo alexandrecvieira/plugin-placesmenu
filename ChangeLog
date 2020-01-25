@@ -1,0 +1,53 @@
+
+2020-01-24  Alexandre C Vieira <acamargo.vieira@gmail.com>
+
+	* Code improvements
+	* Complete removable media menu
+
+2020-01-23  Alexandre C Vieira <acamargo.vieira@gmail.com>
+
+	* Submenus: Open and Eject
+
+2020-01-22  Alexandre C Vieira <acamargo.vieira@gmail.com>
+
+	* Removable media notification
+
+2020-01-21  Alexandre C Vieira <acamargo.vieira@gmail.com>
+
+	* notification with libnotify
+
+2020-01-16  Alexandre C Vieira <acamargo.vieira@gmail.com>
+
+	* Now shows network drives too
+	* Starting to include removable drives
+
+2020-01-14  Alexandre C Vieira <acamargo.vieira@gmail.com>
+
+	* Author
+
+2020-01-13  Alexandre C Vieira <acamargo.vieira@gmail.com>
+
+	* Deleted unnecessary lines
+
+2020-01-11  Alexandre C Vieira <acamargo.vieira@gmail.com>
+
+	* Dropped menu duplicity
+
+2020-01-10  Alexandre C Vieira <acamargo.vieira@gmail.com>
+
+	* Included bookmarks and fm-qt library
+
+2019-12-15  Alexandre C Vieira <acamargo.vieira@gmail.com>
+
+	* Dropped configuration dialog
+	* To LXQt-0.14.1
+
+2017-01-05  Alexandre C Vieira <acamargo.vieira@gmail.com>
+
+	* Merge branch 'master' of https://github.com/acamargovieira/plugin-placesmenu
+	* Retirado icone para que apareca somente o label Places
+
+2017-01-04  Alexandre C Vieira <acamargo.vieira@gmail.com>
+
+	* Update
+	* Desenvolvimento iniciado e em fase avançada, testada a funcionalidade principal
