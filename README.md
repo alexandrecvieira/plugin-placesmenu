@@ -1,6 +1,8 @@
 # plugin-placesmenu
 Simple Places Menu for LXQt-Panel similar to [Places Status Indicator(Gnome Shell)](https://extensions.gnome.org/extension/8/places-status-indicator/)
 
+![plugin-placesmenu](http://alexandrecvieira.droppages.com/images/indicator-places/plugin-placesmenu.png)
+
 #### Dependencies
     sudo apt install lxqt-build-tools libqt5x11extras5-dev liblxqt0-dev \
 	liblxqt-globalkeys0-dev liblxqt-globalkeys-ui0-dev libkf5windowsystem-dev \
