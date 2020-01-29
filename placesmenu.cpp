@@ -115,7 +115,7 @@ void PlacesMenu::createSubmenu(QMenu* menu, GVolume* volume)
 	GFile* mountFile = g_mount_get_default_location(g_volume_get_mount(volume));
 	QString mountPath = QString::fromUtf8(g_file_get_path(mountFile));
 	createMenuItem(subMenu, tr("Open"), mDefaultIcon, mountPath);
-	createMenuItemMount(subMenu, tr("Eject removable media"), "media-eject", volumeName);
+	createMenuEject(subMenu, tr("Eject removable media"), volumeName);
 	mapVolumes.insert(volumeName, volume);
     }
 }
@@ -144,11 +144,11 @@ void PlacesMenu::createMenuItem(QMenu* menu, const QString& name, QIcon icon,  c
     mOpenDirectorySignalMapper->setMapping(action, location);    
 }
 
-void PlacesMenu::createMenuItemMount(QMenu* menu,  const QString& name, const QString& iconName, const QString& mountName)
+void PlacesMenu::createMenuEject(QMenu* menu,  const QString& name, const QString& volumeName)
 {
-    QAction* action = menu->addAction(XdgIcon::fromTheme(iconName), name);
+    QAction* action = menu->addAction(XdgIcon::fromTheme("media-eject"), name);
     connect(action, SIGNAL(triggered()), mEjectSignalMapper, SLOT(map()));
-    mEjectSignalMapper->setMapping(action, mountName);
+    mEjectSignalMapper->setMapping(action, volumeName);
 }
 
 void PlacesMenu::addActions(QMenu* menu)
@@ -198,13 +198,13 @@ void PlacesMenu::addActions(QMenu* menu)
     for(GList* l = mountsList; l; l = l->next) {
 	GMount* mount = G_MOUNT(l->data);
 	GVolume* volume = g_mount_get_volume(mount);
-	    count++;
-	    if(count == 1)
-		menu->addSeparator();
-	    if(G_IS_VOLUME(volume))
-		createSubmenu(menu, volume);
-	    else
-		createSubmenu(menu, mount);  
+	count++;
+	if(count == 1)
+	    menu->addSeparator();
+	if(G_IS_VOLUME(volume))
+	    createSubmenu(menu, volume);
+	else
+	    createSubmenu(menu, mount);
     }
 }
 
@@ -242,7 +242,7 @@ void PlacesMenu::showMessage(const QString& text)
 
 void PlacesMenu::onEject(const QString& volumeName)
 {
-    Fm::MountOperation* op = new Fm::MountOperation(false);
+    Fm::MountOperation* op = new Fm::MountOperation(true);
     GVolume* volume = mapVolumes[volumeName];
     mapVolumes.remove(volumeName);
     op->eject(volume);
