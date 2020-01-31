@@ -6,6 +6,8 @@
 
 ![plugin-placesmenu](http://alexandrecvieira.droppages.com/images/indicator-places/plugin-placesmenu.png)
 
+##### Removable media notifications
+
 <img alt="plugin-placesmenu-connect-message" title="plugin-placesmenu Connect Message" src="http://alexandrecvieira.droppages.com/images/indicator-places/plugin-placesmenu-connect-message.png" width="320" /> <img alt="plugin-placesmenu-eject-message" title="plugin-placesmenu Eject Message" src="http://alexandrecvieira.droppages.com/images/indicator-places/plugin-placesmenu-eject-message.png" width="320" />
 
 #### Dependencies
