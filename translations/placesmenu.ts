@@ -4,63 +4,68 @@
 <context>
     <name>PlacesMenu</name>
     <message>
-        <location filename="../placesmenu.cpp" line="55"/>
+        <location filename="../placesmenu.cpp" line="54"/>
         <source>Places</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../placesmenu.cpp" line="118"/>
+        <location filename="../placesmenu.cpp" line="116"/>
         <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../placesmenu.cpp" line="119"/>
+        <location filename="../placesmenu.cpp" line="117"/>
         <source>Eject removable media</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../placesmenu.cpp" line="142"/>
+        <location filename="../placesmenu.cpp" line="155"/>
         <source>Home</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../placesmenu.cpp" line="146"/>
+        <location filename="../placesmenu.cpp" line="159"/>
         <source>Documents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../placesmenu.cpp" line="154"/>
+        <location filename="../placesmenu.cpp" line="167"/>
         <source>Music</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../placesmenu.cpp" line="158"/>
+        <location filename="../placesmenu.cpp" line="171"/>
         <source>Pictures</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../placesmenu.cpp" line="162"/>
+        <location filename="../placesmenu.cpp" line="175"/>
         <source>Videos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../placesmenu.cpp" line="150"/>
+        <location filename="../placesmenu.cpp" line="163"/>
         <source>Downloads</source>
         <translation type="unfinished"></translation>
     </message>
      <message>
-        <location filename="../placesmenu.cpp" line="196"/>
+        <location filename="../placesmenu.cpp" line="213"/>
         <source>The device &lt;b&gt;&lt;nobr&gt;&quot;%1&quot;&lt;/nobr&gt;&lt;/b&gt; is connected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../placesmenu.cpp" line="205"/>
+        <location filename="../placesmenu.cpp" line="222"/>
         <source>The device &lt;b&gt;&lt;nobr&gt;&quot;%1&quot;&lt;/nobr&gt;&lt;/b&gt; is removed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../placesmenu.cpp" line="213"/>
+        <location filename="../placesmenu.cpp" line="230"/>
         <source>Places Menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../placesmenu.cpp" line="256"/>
+        <source>The device &lt;b&gt;&lt;nobr&gt;&quot;%1&quot;&lt;/nobr&gt;&lt;/b&gt; is busy, can not be removed.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

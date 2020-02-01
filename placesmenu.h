@@ -63,7 +63,7 @@ private Q_SLOTS:
     void createMenuEject(QMenu* menu, const QString& name, const QString& volmeName);
     void createSubmenu(QMenu* menu, GMount* mount);
     void createSubmenu(QMenu* menu, GVolume* volume);
-    void onEject(const QString& volumeName);						 
+    void onEject(const QString& volumeName);
 
 protected Q_SLOTS:
     void buildMenu();
@@ -72,7 +72,7 @@ protected:
     static void onVolumeAdded(GVolumeMonitor* monitor, GVolume* volume, PlacesMenu* pThis);
     static void onVolumeRemoved(GVolumeMonitor* monitor, GVolume* volume, PlacesMenu* pThis);
     static void showMessage(const QString& text);
-    // static void showEjectMessage(int status, const QString& volumeName);
+    static void onEjectVolumeFinished(GVolume* volume, GAsyncResult* res, PlacesMenu* /*pThis*/);
 
 private:
     void addActions(QMenu* menu);

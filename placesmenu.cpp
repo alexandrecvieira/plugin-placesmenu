@@ -36,7 +36,6 @@
 #include <QIcon>
 #include <XdgIcon>
 #include <libnotify/notify.h>
-#include <libfm-qt/mountoperation.h>
 
 PlacesMenu::PlacesMenu(const ILXQtPanelPluginStartupInfo &startupInfo) :
     QObject(),
@@ -242,9 +241,24 @@ void PlacesMenu::showMessage(const QString& text)
 
 void PlacesMenu::onEject(const QString& volumeName)
 {
-    Fm::MountOperation* op = new Fm::MountOperation(true);
     GVolume* volume = mapVolumes[volumeName];
     mapVolumes.remove(volumeName);
-    op->eject(volume);
+    g_volume_eject_with_operation(volume, G_MOUNT_UNMOUNT_NONE, nullptr, nullptr, (GAsyncReadyCallback)onEjectVolumeFinished, nullptr);
+}
+
+void PlacesMenu::onEjectVolumeFinished(GVolume* volume, GAsyncResult* res, PlacesMenu* /*pThis*/) {
+    QString volumeName = g_volume_get_name(volume);
+    
+    GError* error = nullptr;
+    g_volume_eject_with_operation_finish(volume, res, &error);
+    
+    if(error){
+	QString text = tr("The device <b><nobr>\"%1\"</nobr></b> is busy, can not be removed.").arg(volumeName);
+	showMessage(text);
+    }
+    
+    if(error) {
+	g_error_free(error);
+    }
 }
 

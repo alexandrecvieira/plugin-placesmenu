@@ -10,6 +10,8 @@
 
 <img alt="plugin-placesmenu-connect-message" title="plugin-placesmenu Connect Message" src="http://alexandrecvieira.droppages.com/images/indicator-places/plugin-placesmenu-connect-message.png" width="320" /> <img alt="plugin-placesmenu-eject-message" title="plugin-placesmenu Eject Message" src="http://alexandrecvieira.droppages.com/images/indicator-places/plugin-placesmenu-eject-message.png" width="320" />
 
+![plugin-placesmenu-busy-message](http://alexandrecvieira.droppages.com/images/indicator-places/plugin-placesmenu-busy-message.png)
+
 #### Dependencies
     sudo apt install lxqt-build-tools libqt5x11extras5-dev liblxqt0-dev \
 	liblxqt-globalkeys0-dev liblxqt-globalkeys-ui0-dev libkf5windowsystem-dev \
