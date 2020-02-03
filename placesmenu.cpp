@@ -106,17 +106,15 @@ void PlacesMenu::openDirectory(const QString& path)
 
 void PlacesMenu::createSubmenu(QMenu* menu, GVolume* volume)
 {
-    if (g_volume_can_eject(volume)) {
-	QString volumeName = QString::fromUtf8(g_volume_get_name(volume));
-	GIcon* gicon = g_volume_get_icon(volume);
-	QIcon icon = Fm::IconInfo::fromGIcon(gicon)->qicon();
-	QMenu* subMenu = menu->addMenu(icon, volumeName);
-	GFile* mountFile = g_mount_get_default_location(g_volume_get_mount(volume));
-	QString mountPath = QString::fromUtf8(g_file_get_path(mountFile));
-	createMenuItem(subMenu, tr("Open"), mDefaultIcon, mountPath);
-	createMenuEject(subMenu, tr("Eject removable media"), volumeName);
-	mapVolumes.insert(volumeName, volume);
-    }
+    QString volumeName = QString::fromUtf8(g_volume_get_name(volume));
+    GIcon* gicon = g_volume_get_icon(volume);
+    QIcon icon = Fm::IconInfo::fromGIcon(gicon)->qicon();
+    QMenu* subMenu = menu->addMenu(icon, volumeName);
+    GFile* mountFile = g_mount_get_default_location(g_volume_get_mount(volume));
+    QString mountPath = QString::fromUtf8(g_file_get_path(mountFile));
+    createMenuItem(subMenu, tr("Open"), mDefaultIcon, mountPath);
+    createMenuEject(subMenu, tr("Eject removable media"), volumeName);
+    mapVolumes.insert(volumeName, volume);
 }
 
 void PlacesMenu::createSubmenu(QMenu* menu, GMount* mount)
@@ -200,7 +198,7 @@ void PlacesMenu::addActions(QMenu* menu)
 	count++;
 	if(count == 1)
 	    menu->addSeparator();
-	if(G_IS_VOLUME(volume))
+	if(G_IS_VOLUME(volume) && g_volume_can_eject(volume))
 	    createSubmenu(menu, volume);
 	else
 	    createSubmenu(menu, mount);
